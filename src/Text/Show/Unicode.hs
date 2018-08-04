@@ -1,6 +1,6 @@
 {- |
 Copyright   : (c) Takayuki Muranushi, 2016
-License     : MIT
+License     : BSD3
 Maintainer  : whosekiteneverfly@gmail.com
 Stability   : experimental
 
