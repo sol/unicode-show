@@ -51,7 +51,6 @@ import qualified Text.Show.Unicode
 module Text.Show.Unicode (ushow, uprint, ushowWith, uprintWith) where
 
 import Control.Applicative ((<$>), (<$), (<|>))
-import GHC.Show (showLitChar)
 import GHC.Read (readLitChar)
 import Data.Char(isPrint)
 import Text.ParserCombinators.ReadP
