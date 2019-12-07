@@ -1,3 +1,6 @@
+*NOTE*: Since the death of the original author, this project is not actively maintained anymore.  
+You might like [pretty-simple](http://hackage.haskell.org/package/pretty-simple) because its feature subsumes this package's.
+
 # unicode-show : readable unicode characters in print and show. [![Build Status](https://travis-ci.org/nushio3/unicode-show.svg?branch=master)](https://travis-ci.org/nushio3/unicode-show)
 
 
