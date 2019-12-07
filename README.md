@@ -1,14 +1,14 @@
 *NOTE*: Since the death of the original author, this project is not actively maintained anymore.  
 You might like [pretty-simple](http://hackage.haskell.org/package/pretty-simple) because its feature subsumes this package's.
 
-# unicode-show : readable unicode characters in print and show. [![Build Status](https://travis-ci.org/nushio3/unicode-show.svg?branch=master)](https://travis-ci.org/nushio3/unicode-show)
+# unicode-show : readable unicode characters in print and show. [![Build Status](https://travis-ci.org/haskell-jp/unicode-show.svg?branch=master)](https://travis-ci.org/haskell-jp/unicode-show)
 
 
 Provides a interactive printer for printing Unicode characters in ghci REPL. Our design goal is that `uprint` produces String representations that are valid Haskell `String` literals, and uses as many Unicode printable characters as possible. Hence
 `read . ushow == id`
 
 
-See the [tests](https://github.com/nushio3/unicode-show/blob/master/test/Spec.hs) of this package for detailed specifications.
+See the [tests](https://github.com/haskell-jp/unicode-show/blob/master/test/Spec.hs) of this package for detailed specifications.
 
 ## Example
 
