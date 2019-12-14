@@ -55,18 +55,21 @@ import Data.List (isSuffixOf)
 import Text.Read.Lex (lexChar)
 import Text.ParserCombinators.ReadP
 
+-- Represents a replaced character using its literal form and its escaped form.
+type Replacement = (String, String)
+
 -- | Parse one Haskell character literal expression from a 'String' produced by 'show', and
 --
 --  * If the found char satisfies the predicate, replace the literal string with the character itself.
 --  * Otherwise, leave the string as it was.
 --  * Note that special delimiter sequence "\&" may appear in a string. c.f.  <https://www.haskell.org/onlinereport/haskell2010/haskellch2.html#x7-200002.6 Section 2.6 of the Haskell 2010 specification>.
-recoverChar :: (Char -> Bool) -> ReadP String
-recoverChar p = represent <$> gather lexChar <|> string "\\&"
+recoverChar :: (Char -> Bool) -> ReadP Replacement
+recoverChar p = (represent <$> gather lexChar) <|> (("\\&","\&") <$ string "\\&")
   where
-    represent :: (String, Char) -> String
-    represent (ec,c)
-      | p c       = [c]
-      | otherwise = ec
+    represent :: (String, Char) -> Replacement
+    represent (o,lc)
+      | p lc      = (o, [lc])
+      | otherwise = (o, o)
 
 -- | Show the input, and then replace Haskell character literals
 -- with the character it represents, for any Unicode printable characters except backslash, single and double quotation marks.
@@ -81,15 +84,15 @@ uprint = putStrLn . ushow
 -- | Show the input, and then replace character literals
 -- with the character itself, for characters that satisfy the given predicate.
 ushowWith :: Show a => (Char -> Bool) -> a -> String
-ushowWith p x = go $ readP_to_S (many $ recoverChar p) (show x)
+ushowWith p x = go ("", "") $ readP_to_S (many $ recoverChar p) (show x)
   where
-    go :: [([String], String)] -> String
-    go []            = ""
-    go (([],""):[])  = ""
-    go ((rs,""):[])  = last rs
-    go ((_,o):[])    = o
-    go (([],_):rest) = go rest
-    go ((rs,_):rest) = last rs ++ go rest
+    go :: Replacement -> [([Replacement], String)] -> String
+    go _  []            = ""
+    go _  (([],""):_)   = ""
+    go pr ((rs,""):_)   = snd $ last rs
+    go _  ((_,o):[])    = o
+    go pr (([],_):rest) = go pr rest
+    go pr ((rs,o):rest) = let r = last rs in snd r ++ go r rest
 
 -- | A version of 'print' that uses 'ushowWith'.
 uprintWith :: Show a => (Char -> Bool) -> a -> IO ()
