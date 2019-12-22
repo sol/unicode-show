@@ -46,7 +46,7 @@ spec =
         \a b -> let v = a :@\& b in read (ushow v) `shouldBe` v
 
       prop "read . ushow == id, for some crazy Unicode type" $
-        \a b -> let v = a :＠\& b in read (show v) `shouldBe` v
+        \a b -> let v = a :＠\& b in read (ushow v) `shouldBe` v
 
       prop "read . ushow == id, for compound type" $
         \str -> read (ushow str) `shouldBe` (str :: Either [String] (String,String))
