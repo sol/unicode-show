@@ -49,11 +49,10 @@ import qualified Text.Show.Unicode
 
 module Text.Show.Unicode (ushow, uprint, ushowWith, uprintWith) where
 
-import Control.Applicative ((<|>))
-import Data.Char (isPrint)
-import Data.List (isSuffixOf)
-import Text.Read.Lex (lexChar)
-import Text.ParserCombinators.ReadP
+import           Control.Applicative          ((<|>))
+import           Data.Char                    (isPrint)
+import           Text.ParserCombinators.ReadP
+import           Text.Read.Lex                (lexChar)
 
 -- Represents a replaced character using its literal form and its escaped form.
 type Replacement = (String, String)
@@ -89,10 +88,10 @@ ushowWith p x = go ("", "") $ readP_to_S (many $ recoverChar p) (show x)
     go :: Replacement -> [([Replacement], String)] -> String
     go _  []            = ""
     go _  (([],""):_)   = ""
-    go pr ((rs,""):_)   = snd $ last rs
+    go _  ((rs,""):_)   = snd $ last rs
     go _  ((_,o):[])    = o
     go pr (([],_):rest) = go pr rest
-    go pr ((rs,o):rest) = let r = last rs in snd r ++ go r rest
+    go _  ((rs,_):rest) = let r = last rs in snd r ++ go r rest
 
 -- | A version of 'print' that uses 'ushowWith'.
 uprintWith :: Show a => (Char -> Bool) -> a -> IO ()
