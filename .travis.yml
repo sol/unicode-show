@@ -31,5 +31,5 @@ addons:
     - libgmp-dev
 
 script:
-  - stack --no-terminal --skip-ghc-check build --ghc-options=-ferror-spans
+  - stack --no-terminal --skip-ghc-check build --ghc-options=-ferror-spans --pedantic
   - stack test
