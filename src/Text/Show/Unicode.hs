@@ -53,6 +53,7 @@ import           Control.Applicative          ((<|>))
 import           Data.Char                    (isAscii, isPrint)
 import           Text.ParserCombinators.ReadP
 import           Text.Read.Lex                (lexChar)
+import qualified Data.List                     as L
 
 -- Represents a replaced character using its literal form and its escaped form.
 type Replacement = (String, String)
@@ -67,7 +68,13 @@ recoverChar p = represent <$> gather lexChar
   where
     represent :: (String, Char) -> Replacement
     represent (o,lc)
-      | p lc      = (o, [lc])
+      -- This is too dirty a hack.
+      -- However, I couldn't think of any other way to recover the & consumed by lexChar while not needlessly increasing the number of & by mis-detecting the escape sequence.
+      | p lc      =
+        if head o /= '\\' &&
+        "\\&" `L.isSuffixOf` o
+        then (o, [lc] <> "\\&")
+        else (o, [lc])
       | otherwise = (o, o)
 
 -- | Show the input, and then replace Haskell character literals
