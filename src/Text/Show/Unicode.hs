@@ -63,7 +63,7 @@ type Replacement = (String, String)
 --  * Otherwise, leave the string as it was.
 --  * Note that special delimiter sequence "\&" may appear in a string. c.f.  <https://www.haskell.org/onlinereport/haskell2010/haskellch2.html#x7-200002.6 Section 2.6 of the Haskell 2010 specification>.
 recoverChar :: (Char -> Bool) -> ReadP Replacement
-recoverChar p = (represent <$> gather lexChar) <|> (("\\&","\&") <$ string "\\&")
+recoverChar p = represent <$> gather lexChar <|> ("\\&","\&") <$ string "\\&"
   where
     represent :: (String, Char) -> Replacement
     represent (o,lc)
@@ -74,7 +74,7 @@ recoverChar p = (represent <$> gather lexChar) <|> (("\\&","\&") <$ string "\\&"
 -- with the character it represents, for any Unicode printable characters except backslash, single and double quotation marks.
 -- If something fails, fallback to standard 'show'.
 ushow :: Show a => a -> String
-ushow = ushowWith (\c -> isPrint c && not (c `elem` ['\\', '\'','\"'] ))
+ushow = ushowWith (\c -> isPrint c && notElem c ['\\', '\'','\"'])
 
 -- | A version of 'print' that uses 'ushow'.
 uprint :: Show a => a -> IO ()
@@ -89,7 +89,7 @@ ushowWith p x = go ("", "") $ readP_to_S (many $ recoverChar p) (show x)
     go _  []            = ""
     go _  (([],""):_)   = ""
     go _  ((rs,""):_)   = snd $ last rs
-    go _  ((_,o):[])    = o
+    go _  [(_,o)]       = o
     go pr (([],_):rest) = go pr rest
     go _  ((rs,_):rest) = let r = last rs in snd r ++ go r rest
 
