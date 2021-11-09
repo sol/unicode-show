@@ -63,7 +63,7 @@ type Replacement = (String, String)
 --  * Otherwise, leave the string as it was.
 --  * Note that special delimiter sequence "\&" may appear in a string. c.f.  <https://www.haskell.org/onlinereport/haskell2010/haskellch2.html#x7-200002.6 Section 2.6 of the Haskell 2010 specification>.
 recoverChar :: (Char -> Bool) -> ReadP Replacement
-recoverChar p = represent <$> gather lexChar <|> ("\\&","\&") <$ string "\\&"
+recoverChar p = represent <$> gather lexChar
   where
     represent :: (String, Char) -> Replacement
     represent (o,lc)
