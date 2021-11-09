@@ -9,7 +9,8 @@ import           Text.Show.Unicode
 newtype T試6験 = Å4 { すけろく :: String } deriving (Eq, Ord, Show, Read)
 data T試7験 = String :@\& String deriving (Eq, Ord, Show, Read)
 data T試8験 = String :＠\& String deriving (Eq, Ord, Show, Read)
-
+data T試9験 = String :\&＠\& String deriving (Eq, Ord, Show, Read)
+data T試10験 = String :\&\& String deriving (Eq, Ord, Show, Read)
 
 ushowTo :: Show a => a -> String -> Spec
 ushowTo f t = it ("ushow " ++ show f ++ " == " ++ t) $ t `shouldBe` ushow f
@@ -47,6 +48,12 @@ spec =
 
       prop "read . ushow == id, for some crazy Unicode type" $
         \a b -> let v = a :＠\& b in read (ushow v) `shouldBe` v
+
+      prop "read . ushow == id, for some crazy Unicode type" $
+        \a b -> let v = a :\&＠\& b in read (ushow v) `shouldBe` v
+
+      prop "read . ushow == id, for some crazy Unicode type" $
+        \a b -> let v = a :\&\& b in read (ushow v) `shouldBe` v
 
       prop "read . ushow == id, for compound type" $
         \str -> read (ushow str) `shouldBe` (str :: Either [String] (String,String))
