@@ -50,7 +50,7 @@ import qualified Text.Show.Unicode
 module Text.Show.Unicode (ushow, uprint, ushowWith, uprintWith) where
 
 import           Control.Applicative          ((<|>))
-import           Data.Char                    (isPrint)
+import           Data.Char                    (isAscii, isPrint)
 import           Text.ParserCombinators.ReadP
 import           Text.Read.Lex                (lexChar)
 
@@ -74,7 +74,7 @@ recoverChar p = represent <$> gather lexChar <|> ("\\&","\&") <$ string "\\&"
 -- with the character it represents, for any Unicode printable characters except backslash, single and double quotation marks.
 -- If something fails, fallback to standard 'show'.
 ushow :: Show a => a -> String
-ushow = ushowWith (\c -> isPrint c && notElem c ['\\', '\'','\"'])
+ushow = ushowWith (\c -> isPrint c && not (isAscii c))
 
 -- | A version of 'print' that uses 'ushow'.
 uprint :: Show a => a -> IO ()
