@@ -6,9 +6,9 @@ import           Test.Hspec.QuickCheck
 
 import           Text.Show.Unicode
 
-data T試6験 = Å4 { すけろく :: String} deriving (Eq, Ord, Show, Read)
-data T試7験 = String :@\& String  deriving (Eq, Ord, Show, Read)
-data T試8験 = String :＠\& String  deriving (Eq, Ord, Show, Read)
+newtype T試6験 = Å4 { すけろく :: String } deriving (Eq, Ord, Show, Read)
+data T試7験 = String :@\& String deriving (Eq, Ord, Show, Read)
+data T試8験 = String :＠\& String deriving (Eq, Ord, Show, Read)
 
 
 ushowTo :: Show a => a -> String -> Spec
@@ -37,7 +37,7 @@ spec =
         \x -> read (ushow x) `shouldBe` (x :: [(Char,())])
 
       prop "read . read . ushow . ushow == id, for String" $
-        \str -> (read $ read $ ushow $ ushow str) `shouldBe` (str :: String)
+        \str -> read (read $ ushow $ ushow str) `shouldBe` (str :: String)
 
       prop "read . ushow == id, for some crazy Unicode type" $
         \str -> let v = Å4 str in read (ushow v) `shouldBe` v
