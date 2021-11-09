@@ -1,0 +1,31 @@
+on: [push, pull_request]
+name: build
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        resolver:
+          - lts-2
+          - lts-3
+          - lts-6
+          - lts-7
+          - lts-9
+          - lts-11
+          - lts-12
+          - lts-13
+          - lts-14
+          - lts-15
+          - lts-16
+          - lts-17
+          - lts-18
+    name: Haskell GHC ${{ matrix.resolver }} build
+    steps:
+      - uses: actions/checkout@v2
+      - uses: haskell/actions/setup@v1
+        with:
+          ghc-version: ${{ matrix.ghc }}
+          enable-stack: true
+          stack-version: "latest"
+      - run: stack test --resolver ${{ matrix.resolver }}
