@@ -3,6 +3,7 @@
 
 import           Test.Hspec
 import           Test.Hspec.QuickCheck
+import           Text.Read             (readMaybe)
 
 import           Text.Show.Unicode
 
@@ -14,6 +15,18 @@ data T試10験 = String :\&\& String deriving (Eq, Ord, Show, Read)
 
 ushowTo :: Show a => a -> String -> Spec
 ushowTo f t = it ("ushow " ++ show f ++ " == " ++ t) $ t `shouldBe` ushow f
+
+-- | check `read . ushow == id` when `read . show == id`.
+-- The reason why we don't test if the show fails is that older versions may fail to read the result of the show,
+-- which cannot be handled at the library level, so we exclude it.
+-- ==> is not used because it will cause an error if there is no test case that can be executed.
+readUShowIsIdWhenOkPrelude :: (Eq a, Show a, Read a) => a -> Expectation
+readUShowIsIdWhenOkPrelude v =
+  if preludeOk
+  then ushowOk
+  else pure ()
+  where preludeOk = readMaybe (show v) == Just v
+        ushowOk = read (ushow v) `shouldBe` v
 
 spec :: Spec
 spec =
@@ -41,19 +54,19 @@ spec =
         \str -> read (read $ ushow $ ushow str) `shouldBe` (str :: String)
 
       prop "read . ushow == id, for some crazy Unicode type: T試6験" $
-        \str -> let v = Å4 str in read (ushow v) `shouldBe` v
+        \str -> readUShowIsIdWhenOkPrelude $ Å4 str
 
       prop "read . ushow == id, for some crazy Unicode type: T試7験" $
-        \a b -> let v = a :@\& b in read (ushow v) `shouldBe` v
+        \a b -> readUShowIsIdWhenOkPrelude $ a :@\& b
 
       prop "read . ushow == id, for some crazy Unicode type: T試8験" $
-        \a b -> let v = a :＠\& b in read (ushow v) `shouldBe` v
+        \a b -> readUShowIsIdWhenOkPrelude $ a :＠\& b
 
       prop "read . ushow == id, for some crazy Unicode type: T試9験" $
-        \a b -> let v = a :\&＠\& b in read (ushow v) `shouldBe` v
+        \a b -> readUShowIsIdWhenOkPrelude $ a :\&＠\& b
 
       prop "read . ushow == id, for some crazy Unicode type: T試10験" $
-        \a b -> let v = a :\&\& b in read (ushow v) `shouldBe` v
+        \a b -> readUShowIsIdWhenOkPrelude $ a :\&\& b
 
       prop "read . ushow == id, for compound type" $
         \str -> read (ushow str) `shouldBe` (str :: Either [String] (String,String))
