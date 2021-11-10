@@ -7,7 +7,6 @@ jobs:
       fail-fast: false
       matrix:
         resolver:
-          - lts-2
           - lts-3
           - lts-6
           - lts-7

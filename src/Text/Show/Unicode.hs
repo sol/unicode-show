@@ -50,9 +50,10 @@ import qualified Text.Show.Unicode
 module Text.Show.Unicode (ushow, uprint, ushowWith, uprintWith) where
 
 import           Control.Applicative          ((<|>))
-import           Data.Char                    (isPrint)
+import           Data.Char                    (isAscii, isPrint)
 import           Text.ParserCombinators.ReadP
 import           Text.Read.Lex                (lexChar)
+import qualified Data.List                     as L
 
 -- Represents a replaced character using its literal form and its escaped form.
 type Replacement = (String, String)
@@ -63,18 +64,38 @@ type Replacement = (String, String)
 --  * Otherwise, leave the string as it was.
 --  * Note that special delimiter sequence "\&" may appear in a string. c.f.  <https://www.haskell.org/onlinereport/haskell2010/haskellch2.html#x7-200002.6 Section 2.6 of the Haskell 2010 specification>.
 recoverChar :: (Char -> Bool) -> ReadP Replacement
-recoverChar p = (represent <$> gather lexChar) <|> (("\\&","\&") <$ string "\\&")
+recoverChar p = represent <$> gather lexCharAndConsumeEmpties
   where
     represent :: (String, Char) -> Replacement
     represent (o,lc)
-      | p lc      = (o, [lc])
+      -- This is too dirty a hack.
+      -- However, I couldn't think of any other way to recover the & consumed by lexChar while not needlessly increasing the number of & by mis-detecting the escape sequence.
+      | p lc      =
+        if head o /= '\\' &&
+        "\\&" `L.isSuffixOf` o
+        then (o, lc : "\\&")
+        else (o, [lc])
       | otherwise = (o, o)
+
+-- | The base library lexChar has been handling & by itself since 4.9.1.0,
+-- so consumeEmpties is a meaningless action,
+-- but it makes sense for older versions of lexChar.
+lexCharAndConsumeEmpties :: ReadP Char
+lexCharAndConsumeEmpties = lexChar <* consumeEmpties
+    where
+    -- Consumes the string "\&" repeatedly and greedily (will only produce one match)
+    consumeEmpties :: ReadP ()
+    consumeEmpties = do
+        rest <- look
+        case rest of
+            ('\\':'&':_) -> string "\\&" >> consumeEmpties
+            _ -> return ()
 
 -- | Show the input, and then replace Haskell character literals
 -- with the character it represents, for any Unicode printable characters except backslash, single and double quotation marks.
 -- If something fails, fallback to standard 'show'.
 ushow :: Show a => a -> String
-ushow = ushowWith (\c -> isPrint c && not (c `elem` ['\\', '\'','\"'] ))
+ushow = ushowWith (\c -> isPrint c && not (isAscii c))
 
 -- | A version of 'print' that uses 'ushow'.
 uprint :: Show a => a -> IO ()
@@ -89,7 +110,7 @@ ushowWith p x = go ("", "") $ readP_to_S (many $ recoverChar p) (show x)
     go _  []            = ""
     go _  (([],""):_)   = ""
     go _  ((rs,""):_)   = snd $ last rs
-    go _  ((_,o):[])    = o
+    go _  [(_,o)]       = o
     go pr (([],_):rest) = go pr rest
     go _  ((rs,_):rest) = let r = last rs in snd r ++ go r rest
 
