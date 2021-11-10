@@ -73,7 +73,7 @@ recoverChar p = represent <$> gather lexChar
       | p lc      =
         if head o /= '\\' &&
         "\\&" `L.isSuffixOf` o
-        then (o, [lc] <> "\\&")
+        then (o, lc : "\\&")
         else (o, [lc])
       | otherwise = (o, o)
 
