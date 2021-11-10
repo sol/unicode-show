@@ -40,19 +40,19 @@ spec =
       prop "read . read . ushow . ushow == id, for String" $
         \str -> read (read $ ushow $ ushow str) `shouldBe` (str :: String)
 
-      prop "read . ushow == id, for some crazy Unicode type" $
+      prop "read . ushow == id, for some crazy Unicode type: T試6験" $
         \str -> let v = Å4 str in read (ushow v) `shouldBe` v
 
-      prop "read . ushow == id, for some crazy Unicode type" $
+      prop "read . ushow == id, for some crazy Unicode type: T試7験" $
         \a b -> let v = a :@\& b in read (ushow v) `shouldBe` v
 
-      prop "read . ushow == id, for some crazy Unicode type" $
+      prop "read . ushow == id, for some crazy Unicode type: T試8験" $
         \a b -> let v = a :＠\& b in read (ushow v) `shouldBe` v
 
-      prop "read . ushow == id, for some crazy Unicode type" $
+      prop "read . ushow == id, for some crazy Unicode type: T試9験" $
         \a b -> let v = a :\&＠\& b in read (ushow v) `shouldBe` v
 
-      prop "read . ushow == id, for some crazy Unicode type" $
+      prop "read . ushow == id, for some crazy Unicode type: T試10験" $
         \a b -> let v = a :\&\& b in read (ushow v) `shouldBe` v
 
       prop "read . ushow == id, for compound type" $
