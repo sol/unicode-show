@@ -64,7 +64,7 @@ type Replacement = (String, String)
 --  * Otherwise, leave the string as it was.
 --  * Note that special delimiter sequence "\&" may appear in a string. c.f.  <https://www.haskell.org/onlinereport/haskell2010/haskellch2.html#x7-200002.6 Section 2.6 of the Haskell 2010 specification>.
 recoverChar :: (Char -> Bool) -> ReadP Replacement
-recoverChar p = represent <$> gather lexChar
+recoverChar p = represent <$> gather lexCharAndConsumeEmpties
   where
     represent :: (String, Char) -> Replacement
     represent (o,lc)
@@ -76,6 +76,20 @@ recoverChar p = represent <$> gather lexChar
         then (o, lc : "\\&")
         else (o, [lc])
       | otherwise = (o, o)
+
+-- | The base library lexChar has been handling & by itself since 4.9.1.0,
+-- so consumeEmpties is a meaningless action,
+-- but it makes sense for older versions of lexChar.
+lexCharAndConsumeEmpties :: ReadP Char
+lexCharAndConsumeEmpties = lexChar <* consumeEmpties
+    where
+    -- Consumes the string "\&" repeatedly and greedily (will only produce one match)
+    consumeEmpties :: ReadP ()
+    consumeEmpties = do
+        rest <- look
+        case rest of
+            ('\\':'&':_) -> string "\\&" >> consumeEmpties
+            _ -> return ()
 
 -- | Show the input, and then replace Haskell character literals
 -- with the character it represents, for any Unicode printable characters except backslash, single and double quotation marks.
